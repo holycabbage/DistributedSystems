@@ -3,8 +3,6 @@ package cluster.management;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 
-import java.util.List;
-
 public class LeaderElection implements Watcher {
     private static final String ELECTION_ZNODE_NAME = "/leader_election";
     private static final String ZNODE_PREFIX = "/guide-n_";
@@ -30,7 +28,7 @@ public class LeaderElection implements Watcher {
         // string currentZnodeName
         String znodeFullPath = ELECTION_ZNODE_NAME + ZNODE_PREFIX;
         String createdZNode = zooKeeperClient.createEphemeralSequentialNode(znodeFullPath, new byte[] {});
-        // System.out.println("Created znode " + createdZNode);
+        System.out.println("Znode Name:" + createdZNode);
         this.currentZnodeName = createdZNode.replace(ELECTION_ZNODE_NAME + "/", "");
         participateInLeaderElection();
     }
@@ -84,7 +82,7 @@ public class LeaderElection implements Watcher {
         // method)
         try {
             System.out.println("I am the leader");
-            serviceRegistry.registerForUpdates();
+            //serviceRegistry.registerForUpdates();
 
             serviceRegistry.unregisterFromCluster();
             serviceRegistry.registerForUpdates();
@@ -112,6 +110,8 @@ public class LeaderElection implements Watcher {
             if (predecessorNode != null) {
                 Stat predecessorStat = zooKeeperClient.getZookeeper().exists(ELECTION_ZNODE_NAME + "/" + predecessorNode, this);             
                 
+                System.out.println("Watching znode " + predecessorNode);
+
                 if (predecessorStat == null) {
                     participateInLeaderElection();
                 }
