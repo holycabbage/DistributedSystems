@@ -83,6 +83,7 @@ public class LeaderElection implements Watcher {
         try {
             System.out.println("I am the leader");
             //serviceRegistry.registerForUpdates();
+            leaderElectedCallback();
 
             serviceRegistry.unregisterFromCluster();
             serviceRegistry.registerForUpdates();
@@ -122,6 +123,19 @@ public class LeaderElection implements Watcher {
 
     }
     // --------END TODO ------
+
+    // Challenge
+    public void leaderElectedCallback(){
+        try {
+            if (zooKeeperClient.getZookeeper().exists("/pointOfContact", false) != null) {
+                zooKeeperClient.getZookeeper().getChildren("/pointOfContact", this);
+            }
+
+            zooKeeperClient.createEphemeralSequentialNode("/pointOfContact", String.valueOf(currentServerPort).getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void process(WatchedEvent event) {
